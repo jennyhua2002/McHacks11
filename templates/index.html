@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Symptom Information Site</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #9ccbf5; /* Light blue background */
+            color: #333; /* Darker text for readability */
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            justify-content: space-around; /* Space elements evenly */
+        }
+
+        .header {
+            background-color: #0e0248; /* Dark Blue */
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px 0 rgba(0, 0, 0, 0.1); /* Adding a subtle shadow */
+            border-radius: 15px; /* Rounded edges for header */
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .search-container {
+            margin: 20px auto;
+            width: 50%;
+            padding: 20px;
+            border-radius: 15px; /* Rounded edges for search container */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adding a subtle shadow */
+            background-color: white; /* White background for contrast */
+        }
+
+        .search-box {
+            padding: 15px 20px;
+            width: 70%;
+            border-radius: 25px; /* Rounded edges */
+            border: 2px solid #0b0503; /* Border color */
+            box-sizing: border-box; /* Better width management */
+            font-size: 16px; /* Larger font size */
+        }
+
+        .search-button {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 25px;
+            background-color: #46d0d4; /* Vibrant Blue */
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: -5px; /* Align with the search box */
+        }
+
+        .search-button:hover {
+            background-color: #192fc1; /* Darker blue on hover */
+        }
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
+            .search-container {
+                width: 80%;
+            }
+        }
+
+        /* Updated health line and heart icon styles */
+        .health-line {
+            position: relative;
+            height: 5px; /* Retain the original height */
+            width: 80%;
+            margin: 20px auto; /* Adjust margin as needed */
+            background: linear-gradient(to right, #0e0248 50%, transparent 50%);
+            background-size: 40px 100%;
+            animation: heartbeat 2s linear infinite;
+        }
+
+        .heart {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5); /* Adjusted for centering and scaling */
+            font-size: 200px;
+            color: #0e0248;
+            animation: moveHeart 6s linear infinite;
+        }
+
+        /* Heartbeat animation */
+        @keyframes heartbeat {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 0; }
+        }
+
+        /* Moving heart animation */
+        @keyframes moveHeart {
+            0% { left: 0; }
+            100% { left: 100%; }
+        }
+
+        /* Hide results section initially */
+        .results {
+            display: none; /* Hidden by default */
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 50%;
+            text-align: left;
+            font-size: 18px;
+        }
+
+        .results.show {
+            display: block; /* Show when results are available */
+        }
+
+        .results ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .results li {
+            background-color: #eef2f7;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Welcome to DieAgnosis</h1>
+        <h2>A Diagnosis a Day Keeps Happiness Away~</h2>
+    </div>
+
+    <form id="searchForm" class="search-container">
+        <input type="text" id="symptomInput" class="search-box" placeholder="Enter a symptom...">
+        <button type="submit" class="search-button">Search</button>
+    </form>
+
+    <div class="health-line">
+        <div class="heart">&hearts;</div>
+    </div>
+
+    <div id="results" class="results"></div>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            searchSymptom();
+        });
+
+        function searchSymptom() {
+            var symptom = document.getElementById('symptomInput').value;
+            fetch('/search?symptom=' + encodeURIComponent(symptom))
+                .then(response => response.json())
+                .then(data => {
+                    var results = document.getElementById('results');
+                    if (data.error) {
+                        results.innerHTML = '<p>Error: ' + data.error + '</p>';
+                    } else {
+                        results.innerHTML = '<ul>' + 
+                            data.map(disease => '<li>' + disease + '</li>').join('') +
+                            '</ul>';
+                    }
+                    results.classList.add('show');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('results').innerHTML = '<p>An error occurred</p>';
+                    results.classList.add('show');
+                });
+        }
+    </script>
+</body>
+</html>
